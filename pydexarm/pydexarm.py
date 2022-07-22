@@ -132,6 +132,35 @@ class Dexarm:
         """
         move_to(self, x=x, y=y, z=z, feedrate=feedrate, mode="G0", wait=wait)
 
+    
+    def get_arm_info(self, info_id):
+        """
+        Get the robotic arm information.
+        Returns:
+            string that indicates the specific information
+        """
+        info_id_map = {
+            "fw_ver": "M2010\r",
+            "hw_ver": "M2011\r",
+            "dev_status": "M503\r",
+            "marlin_fw_ver": "M115\r",
+            "is_moving": "M897\r",
+            "pump_status": "M1004\r"
+        }
+
+        self.ser.reset_input_buffer()
+        self.ser.write(info_id_map[info_id].encode())
+
+        res = ""
+
+        while True:
+            serial_str = self.ser.readline().decode("utf-8")
+            if len(serial_str) > 0:
+                res += serial_str
+            if len(serial_str) > 0:
+                if serial_str.find("ok") > -1:
+                    return res
+        
     def get_current_position(self):
         """
         Get the current position
